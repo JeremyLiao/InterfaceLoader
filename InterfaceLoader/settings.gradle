@@ -1,0 +1,3 @@
+include ':interface-loader'
+include ':app'
+rootProject.name = "InterfaceLoader"
