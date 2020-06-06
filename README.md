@@ -1,7 +1,8 @@
 # InterfaceLoader
 ![license](https://img.shields.io/github/license/JeremyLiao/InterfaceLoader.svg) [![version](https://img.shields.io/badge/JCenter-v0.0.1-blue.svg)](https://mvnrepository.com/artifact/com.jeremyliao/)
 
-InterfaceLoader是一款Android跨进程接口调用框架，可以替代Android AIDL
+- InterfaceLoader是一款Android跨进程接口调用框架，可以替代Android AIDL
+- 史上最好用的Android跨进程接口调用框架
 
 ## 为什么要用InterfaceLoader
 1. 因为不想用AIDL！
@@ -46,5 +47,7 @@ InterfaceService.newService(ILoaderDemo.class, new ILoaderDemo()
 InterfaceLoader.getService(ILoaderDemo.class, binder)
                 .plus(10, 20);
 ```
+#### 完整示例
+[Demo](InterfaceLoader/tree/master/InterfaceLoader/app)
 
 ## 妈妈再也不用担心我使用AIDL了:sunglasses::sunglasses:
