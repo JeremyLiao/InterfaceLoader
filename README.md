@@ -11,6 +11,10 @@
 
 ## 干掉难用的AIDL，InterfaceLoader就是这么爽:smirk:
 
+## InterfaceLoader的实现原理和亮点
+- 基于AIDL的跨进程通信是一种典型的代理模式，由.aidl文件生成client端的proxy和server端的binder，但是我觉得生成的代码总觉得看起来很别扭，也很难用。
+- 所以InterfaceLoader使用动态代理代替了AIDl的代码生成，非常巧妙。不仅减少了生成的代码，也让跨进程通信的使用体验更接近普通的接口调用，这就是InterfaceLoader的奇妙之处。
+
 ## 在工程中引用
 Via Gradle:
 ```
