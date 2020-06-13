@@ -1,3 +1,4 @@
+include ':service-fetcher-rxjava2'
 include ':interface-loader'
 include ':app'
 rootProject.name = "InterfaceLoader"

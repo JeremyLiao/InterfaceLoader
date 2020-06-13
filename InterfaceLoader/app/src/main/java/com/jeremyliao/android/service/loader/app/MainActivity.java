@@ -1,24 +1,26 @@
 package com.jeremyliao.android.service.loader.app;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import com.jeremyliao.android.service.loader.InterfaceLoader;
 import com.jeremyliao.android.service.loader.app.databinding.ActivityMainBinding;
 import com.jeremyliao.android.service.loader.app.service.LoaderDemoService;
+import com.jeremyliao.android.service.loader.fetcher.ServiceFetcher;
+
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
-    IBinder binder;
+    ServiceFetcher serviceFetcher;
+    final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,40 +28,87 @@ public class MainActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setHandler(this);
         binding.setLifecycleOwner(this);
-        bindService();
+        Intent intent = new Intent(LoaderDemoService.ACTION);
+        intent.setPackage(getPackageName());
+        serviceFetcher = new ServiceFetcher(this, intent);
+        serviceFetcher.bindService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        serviceFetcher.unbindService();
+        if (!disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 
     public void remotePlus() {
-        int result = InterfaceLoader.getService(ILoaderDemo.class, binder)
-                .plus(10, 20);
-        Toast.makeText(this, "result: " + result, Toast.LENGTH_SHORT).show();
+        disposable.add(serviceFetcher.getService()
+                .map(new Function<IBinder, Integer>() {
+                    @Override
+                    public Integer apply(IBinder binder) throws Exception {
+                        return InterfaceLoader.getService(ILoaderDemo.class, binder)
+                                .plus(10, 20);
+                    }
+                })
+                .map(new Function<Integer, String>() {
+                    @Override
+                    public String apply(Integer result) throws Exception {
+                        return "result: " + result;
+                    }
+                })
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String result) throws Exception {
+                        binding.tvContent.setText(result);
+                    }
+                }));
     }
 
     public void remoteMinus() {
-        int result = InterfaceLoader.getService(ILoaderDemo.class, binder)
-                .minus(10, 20);
-        Toast.makeText(this, "result: " + result, Toast.LENGTH_SHORT).show();
+        disposable.add(serviceFetcher.getService()
+                .map(new Function<IBinder, Integer>() {
+                    @Override
+                    public Integer apply(IBinder binder) throws Exception {
+                        return InterfaceLoader.getService(ILoaderDemo.class, binder)
+                                .minus(10, 20);
+                    }
+                })
+                .map(new Function<Integer, String>() {
+                    @Override
+                    public String apply(Integer result) throws Exception {
+                        return "result: " + result;
+                    }
+                })
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String result) throws Exception {
+                        binding.tvContent.setText(result);
+                    }
+                }));
     }
 
     public void remoteMulti() {
-        int result = InterfaceLoader.getService(ILoaderDemo.class, binder)
-                .multi(10, 20);
-        Toast.makeText(this, "result: " + result, Toast.LENGTH_SHORT).show();
-    }
-
-    private void bindService() {
-        Intent intent = new Intent(LoaderDemoService.ACTION);
-        intent.setPackage(getPackageName());
-        bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                binder = service;
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-        }, Context.BIND_AUTO_CREATE);
+        disposable.add(serviceFetcher.getService()
+                .map(new Function<IBinder, Integer>() {
+                    @Override
+                    public Integer apply(IBinder binder) throws Exception {
+                        return InterfaceLoader.getService(ILoaderDemo.class, binder)
+                                .multi(10, 20);
+                    }
+                })
+                .map(new Function<Integer, String>() {
+                    @Override
+                    public String apply(Integer result) throws Exception {
+                        return "result: " + result;
+                    }
+                })
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String result) throws Exception {
+                        binding.tvContent.setText(result);
+                    }
+                }));
     }
 }
